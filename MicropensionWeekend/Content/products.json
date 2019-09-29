@@ -1,0 +1,14 @@
+﻿[
+  {
+    "name": "Data",
+    "rows": [],
+    "columns": [],
+    "selection": "D3:D3",
+    "activeCell": "D3:D3",
+    "frozenRows": 0,
+    "frozenColumns": 0,
+    "mergedCells": [
+      "A1:C1"
+    ]
+  }
+]

@@ -1,0 +1,149 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+
+
+
+<div class="row">
+    <div class="box-col">
+        <h4>Import</h4>
+        <input type="file" name="file" id="upload" />
+    </div>
+</div>
+@*@(Html.Kendo().Spreadsheet()
+            .Name("spreadsheet")
+            .HtmlAttributes(new { style = "width:100%;" })
+            .BindTo((IEnumerable<SpreadsheetSheet>)ViewBag.Sheets)
+)*@
+
+<div id="grid"></div>
+<script>
+                    function onChange(arg) {
+                        console.log("The selected product ids are: [" + this.selectedKeyNames().join(", ") + "]");
+                        console.log(arg);
+                        console.log(this);
+                        //kendoConsole.log("The selected product ids are: [" + this.selectedKeyNames().join(", ") + "]");
+                    }
+
+                    $(document).ready(function () {
+                        $("#grid").kendoGrid({
+                            dataSource: {
+                                batch:true,
+                                pageSize: 10,
+                                transport: {
+                                    read: {
+                                        url: "@Url.Action("MPPAjaxBinding_Read", "Home", routeValues: null /* specify if needed */,
+                                            protocol: Request.Url.Scheme /* This is the trick */)",
+                                        dataType: "json"
+                                    },
+                                     create: {
+                                        url: "@Url.Action("MPPAjaxBinding_Upload", "Home", routeValues: null /* specify if needed */,
+                                            protocol: Request.Url.Scheme /* This is the trick */)",
+                                        dataType: "json"
+                                    },
+                                     update: {
+                                        url: "@Url.Action("MPPAjaxBinding_Upload", "Home", routeValues: null /* specify if needed */,
+                                            protocol: Request.Url.Scheme /* This is the trick */)",
+                                        dataType: "json"
+                                    },
+                                     destroy: {
+                                        url: "@Url.Action("MPPAjaxBinding_Upload", "Home", routeValues: null /* specify if needed */,
+                                            protocol: Request.Url.Scheme /* This is the trick */)",
+                                        dataType: "json"
+                                    }
+                                },
+                                schema: {
+                                    data:"Data",
+                                    model: {
+                                        id: "Pin",
+                                        fields:{
+                                            Surname: { type: "string", editable: false  },
+                                            Firstname: { type: "string", editable: false  },
+                                            Othernames: { type: "string", editable: false  },
+                                            Pin: { type: "string", editable: false },
+                                            Phone: { type: "string", editable: false  },
+                                            EmployerCode: { type: "string", editable: false  },
+                                            Agent: { type: "string", editable: false  },
+                                            LastPayDate: { type: "date", editable: false  },
+                                            Amount: { type: "number" },
+                                            Channel: { type: "string", editable: false  }
+                                        }
+
+                                    }
+                                }
+                            },
+                            toolbar: ["search","save","update","destroy"],
+                            pageable: {
+                                refresh: true,
+                                pageSizes: true,
+                                buttonCount: 5
+                            },
+                            scrollable: false,
+                            editable:true,
+                            persistSelection: true,
+                            sortable: true,
+                            change: onChange,
+                            columns: [
+                                { selectable: true, width: "50px" },
+                                { field: "Surname"},
+                                { field: "Firstname" },
+                                { field: "Othernames" },
+                                { field: "Pin" },
+                                { field: "Phone" },
+                                { field: "EmployerCode" },
+                                { field: "Agent" },
+                                {
+                                    field: "LastPayDate",
+                                    format: "{0:MM/dd/yyyy}"
+                                },
+                                {field: "Amount" },
+                                { field: "Channel"}
+
+                            ]
+                        });
+                    });
+</script>
+<script>
+    $(function () {
+        var spreadsheet = $("#spreadsheet").data("kendoSpreadsheet");
+
+        var ALLOWED_EXTENSIONS = [".xlsx", ".csv", ".txt", ".json"];
+
+        $("#upload").kendoUpload({
+            async: {
+                saveUrl: "@Url.Action("Upload", "Home")"
+            },
+            multiple: false,
+            localization: {
+                "select": "Select file to import..."
+            },
+            select: function (e) {
+                var extension = e.files[0].extension.toLowerCase();
+                if (ALLOWED_EXTENSIONS.indexOf(extension) == -1) {
+                    alert("Please, select a supported file format");
+                    e.preventDefault();
+                }
+            },
+            success: function (e) {
+                // Load the converted document into the spreadsheet
+                //spreadsheet.fromJSON(e.response);
+                console.log(e.response);
+                //$('#grid').data('kendoGrid').dataSource.data(e.response);
+                //$('#grid').data('kendoGrid').refresh();
+            }
+        });
+
+        $(".download").click(function () {
+            $("#download-data").val(JSON.stringify(spreadsheet.toJSON()));
+            $("#download-extension").val($(this).data("extension"));
+        });
+    });
+</script>
+
+
+<style>
+    .download {
+        width: 260px;
+    }
+</style>
+</div>
